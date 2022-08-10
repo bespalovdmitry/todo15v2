@@ -12,10 +12,15 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import { Menu } from '@mui/icons-material';
+import {LinearProgress} from "@mui/material";
+import {useSelector} from "react-redux";
+import {AppRootStateType, appUseSelector} from "./store";
+import {RequestStatusType, SetErrorACType} from "./app-reduser";
+import {ErrorSnackBar} from "../components/ErrorSnackBar/ErrorSnackBar";
 
 
 function App() {
-
+    const status = appUseSelector(state => state.app.status)
     return (
         <div className="App">
             <AppBar position="static">
@@ -29,9 +34,11 @@ function App() {
                     <Button color="inherit">Login</Button>
                 </Toolbar>
             </AppBar>
+            {status === 'loading' && <LinearProgress color="secondary" />}
             <Container fixed>
                 <TodolistsList/>
             </Container>
+            <ErrorSnackBar />
         </div>
     )
 }
