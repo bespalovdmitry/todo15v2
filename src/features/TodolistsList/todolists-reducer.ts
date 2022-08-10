@@ -57,15 +57,15 @@ export const removeTodolistTC = (todolistId: string) => {
         dispatch(changeTodoListEntityStatusAC(todolistId,'loading'))
         todolistsAPI.deleteTodolist(todolistId)
             .then((res) => {
-                // debugger
-                if (res.data.resultCode === 0) {
-                    dispatch(removeTodolistAC(todolistId))
-                    dispatch(SetAppStatusAC('idle'))
-                } else {
-                    dispatch(changeTodoListEntityStatusAC(todolistId,'idle'))
-                    dispatch(SetErrorAC(res.data.messages[0]))
-                }
-
+                dispatch(removeTodolistAC(todolistId))
+                dispatch(SetAppStatusAC('success'))
+            })
+            .catch((rej) => {
+                dispatch(SetErrorAC(rej.message))
+            })
+            .finally(() => {
+                dispatch(SetAppStatusAC('idle'))
+                dispatch(changeTodoListEntityStatusAC(todolistId,'idle'))
             })
     }
 }
@@ -84,7 +84,7 @@ export const addTodolistTC = (title: string) => {
                 dispatch(SetErrorAC(rej.message))
             })
             .finally(() => {
-                dispatch(SetAppStatusAC('filed'))
+                dispatch(SetAppStatusAC('idle'))
             })
     }
 }

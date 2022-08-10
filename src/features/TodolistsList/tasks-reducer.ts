@@ -2,7 +2,7 @@ import {AddTodolistActionType, RemoveTodolistActionType, SetTodolistsActionType}
 import {TaskPriorities, TaskStatuses, TaskType, todolistsAPI, UpdateTaskModelType} from '../../api/todolists-api'
 import {Dispatch} from 'redux'
 import {AppRootStateType} from '../../app/store'
-import {ActionAppType, SetAppStatusAC, SetAppStatusACType, SetErrorAC} from "../../app/app-reduser";
+import {ActionAppType, SetAppStatusAC, SetErrorAC} from "../../app/app-reduser";
 
 const initialState: TasksStateType = {}
 
@@ -32,7 +32,7 @@ export const tasksReducer = (state: TasksStateType = initialState, action: Actio
             return copyState
         }
         case 'SET-TASKS':
-            return {...state, [action.todolistId]: action.tasks}
+            return {...state, [action.todolistId]: [...action.tasks]}
         default:
             return state
     }
@@ -47,6 +47,9 @@ export const updateTaskAC = (taskId: string, model: UpdateDomainTaskModelType, t
     ({type: 'UPDATE-TASK', model, todolistId, taskId} as const)
 export const setTasksAC = (tasks: Array<TaskType>, todolistId: string) =>
     ({type: 'SET-TASKS', tasks, todolistId} as const)
+export const changeTaskEntityStatusAC = () => {
+  
+}
 
 // thunks
 export const fetchTasksTC = (todolistId: string) => (dispatch: Dispatch<ActionsType>) => {
@@ -58,11 +61,11 @@ export const fetchTasksTC = (todolistId: string) => (dispatch: Dispatch<ActionsT
         })
 }
 export const removeTaskTC = (taskId: string, todolistId: string) => (dispatch: Dispatch<ActionsType>) => {
+    dispatch(SetAppStatusAC("loading"))
     todolistsAPI.deleteTask(todolistId, taskId)
-        .then(res => {
-            const action = removeTaskAC(taskId, todolistId)
-            dispatch(action)
-        })
+        .then(res => dispatch(removeTaskAC(taskId, todolistId)))
+        .catch(rej => dispatch(SetErrorAC(rej.message)))
+        .finally(() => dispatch(SetAppStatusAC('idle')))
 }
 export const addTaskTC = (title: string, todolistId: string) => (dispatch: Dispatch<ActionsType>) => {
     dispatch(SetAppStatusAC('loading'))
